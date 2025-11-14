@@ -27,20 +27,16 @@ public class FamilyTree {
             children.add(childNode);
         }
 
-        // Searches the subtree at this node for a node with the given name.
-        // Returns the node, or null if not found.
+    
         TreeNode getNodeWithName(String targetName) {
-            if (this.name.equals(targetName)) return this;   // found here
-            // Recurse through children
+            if (this.name.equals(targetName)) return this;   
+          
             for (TreeNode child : children) {
                 TreeNode found = child.getNodeWithName(targetName);
                 if (found != null) return found;
             }
-            return null; // not found
+            return null; 
         }
-
-        // Returns a list of ancestors of this node, starting with this node’s parent
-        // and ending at the root (order: recent → ancient).
         ArrayList<TreeNode> collectAncestorsToList() {
             ArrayList<TreeNode> ancestors = new ArrayList<>();
             TreeNode p = this.parent;
@@ -67,9 +63,9 @@ public class FamilyTree {
 
     private TreeNode root;
 
-    // Displays a file browser so that user can select the family tree file.
+
     public FamilyTree() throws IOException, TreeException {
-        // User chooses input file. (Provided code; no changes needed.)
+     
         FileNameExtensionFilter filter = new FileNameExtensionFilter("Family tree text files", "txt");
         File dirf = new File("data");
         if (!dirf.exists()) dirf = new File(".");
@@ -79,7 +75,7 @@ public class FamilyTree {
         if (chooser.showOpenDialog(null) != JFileChooser.APPROVE_OPTION) System.exit(1);
         File treeFile = chooser.getSelectedFile();
 
-        // Parse the input file.
+ 
         FileReader fr = new FileReader(treeFile);
         BufferedReader br = new BufferedReader(fr);
         String line;
@@ -90,22 +86,17 @@ public class FamilyTree {
         br.close();
         fr.close();
     }
-
-    // Line format is "parent:child1,child2,..."
-    // Throws TreeException if line is illegal.
     private void addLine(String line) throws TreeException {
-        // Extract parent and array of children.
+       
         int colonIndex = line.indexOf(':');
         if (colonIndex < 0) {
             throw new TreeException("Bad line (missing colon): " + line);
         }
 
         String parent = line.substring(0, colonIndex);
-        String childrenString = line.substring(colonIndex + 1); // may be empty
+        String childrenString = line.substring(colonIndex + 1); 
         String[] childrenArray = childrenString.isEmpty() ? new String[0] : childrenString.split(",");
 
-        // Find parent node. If root is null then the tree is empty and the
-        // parent node must be constructed. Otherwise the parent node should be in the tree.
         TreeNode parentNode;
         if (root == null) {
             root = new TreeNode(parent);
@@ -117,36 +108,34 @@ public class FamilyTree {
             }
         }
 
-        // Add child nodes to parentNode.
+        
         for (String kid : childrenArray) {
             String childName = kid.trim();
             if (childName.isEmpty()) continue;
 
-            // Reuse an existing node with that name if present; otherwise create it.
             TreeNode existing = root.getNodeWithName(childName);
             TreeNode child = (existing != null) ? existing : new TreeNode(childName);
             parentNode.addChild(child);
         }
     }
 
-    // Returns the "deepest" node that is an ancestor of both name1 and name2
     TreeNode getMostRecentCommonAncestor(String name1, String name2) throws TreeException {
-        // Get nodes for input names.
-        TreeNode node1 = root.getNodeWithName(name1);   // node whose name is name1
+  
+        TreeNode node1 = root.getNodeWithName(name1);  
         if (node1 == null) throw new TreeException("No such person: " + name1);
 
-        TreeNode node2 = root.getNodeWithName(name2);   // node whose name is name2
+        TreeNode node2 = root.getNodeWithName(name2);  
         if (node2 == null) throw new TreeException("No such person: " + name2);
 
-        // Get ancestors (recent → ancient)
+        
         ArrayList<TreeNode> ancestorsOf1 = node1.collectAncestorsToList();
         ArrayList<TreeNode> ancestorsOf2 = node2.collectAncestorsToList();
 
-        // First ancestor of node1 that’s also an ancestor of node2 is the MRCA
+      
         for (TreeNode n1 : ancestorsOf1) {
             if (ancestorsOf2.contains(n1)) return n1;
         }
-        // No common ancestor (shouldn't happen in a valid single-root tree)
+     
         return null;
     }
 
